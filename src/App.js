@@ -4,7 +4,10 @@ import JSONPretty from 'react-json-prettify';
 import exportFromJSON from 'export-from-json';
 import ReactFileReader from 'react-file-reader';
 
+import Header from './components/Header';
+
 function App() {
+  const [tampil, setTampil] = useState(0);
   const [namaDB, setNamaDB] = useState('');
   const [data, setData] = useState({});
   const [namaDBBaru, setNamaDBBaru] = useState('');
@@ -20,6 +23,11 @@ function App() {
   const handleGetData = () => getData(namaDB);
   const handleSimpanDB = () => {
     saveData(namaDBBaru, dataBaru);
+    //
+    setTampil(0);
+    setNamaDB(namaDBBaru);
+    getData(namaDBBaru);
+    //
     setNamaDBBaru('');
     setDataBaru({});
   };
@@ -43,42 +51,82 @@ function App() {
 
   return (
     <div>
-      <div>
-        <h1 style={{ textAlign: 'center' }}>Upload Data</h1>
-        <ReactFileReader
-          handleFiles={handleFileUpload}
-          multipleFiles={false}
-          base64={true}
-          fileTypes={['json']}
-        >
-          <button>Upload JSON Data</button>
-        </ReactFileReader>
-        {dataBaru.length && (
-          <React.Fragment>
-            <div>
-              <input
-                placeholder="namaDB"
-                value={namaDBBaru}
-                onChange={e => setNamaDBBaru(e.target.value)}
-              />
-              <button onClick={handleSimpanDB}>Simpan</button>
-            </div>
-          </React.Fragment>
-        )}
-        <JSONPretty json={dataBaru} />
-      </div>
+      <Header tampil={tampil} setTampil={setTampil} />
+      <hr style={{ marginBottom: '20px' }} />
+      {tampil === 1 && (
+        <div>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center'
+            }}
+          >
+            <ReactFileReader
+              handleFiles={handleFileUpload}
+              multipleFiles={false}
+              base64={true}
+              fileTypes={['json']}
+            >
+              <button>Upload JSON Data</button>
+            </ReactFileReader>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              marginRight: '30px',
+              marginTop: '40px'
+            }}
+          >
+            {dataBaru.length && (
+              <React.Fragment>
+                <div>
+                  <input
+                    placeholder="document name"
+                    value={namaDBBaru}
+                    onChange={e => setNamaDBBaru(e.target.value)}
+                  />
+                  <button onClick={handleSimpanDB}>upsert data</button>
+                </div>
+              </React.Fragment>
+            )}
+          </div>
 
-      <div>
-        <h1 style={{ textAlign: 'center' }}>
-          Tampilkan Data JSON dari {namaDB}
-        </h1>
-        <input value={namaDB} onChange={handleNamaDB} />
-        <button onClick={handleGetData} style={{ marginRight: '20px' }}>
-          ambil data
-        </button>
-        <button onClick={handleDownload}>Download data JSON</button>
-        <JSONPretty json={data} />
-      </div>
+          <JSONPretty json={dataBaru} />
+        </div>
+      )}
+      {tampil === 0 && (
+        <div>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center'
+            }}
+          >
+            <input
+              value={namaDB}
+              onChange={handleNamaDB}
+              placeholder="document name"
+            />
+            <button onClick={handleGetData} style={{ marginRight: '20px' }}>
+              Read Data
+            </button>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              marginRight: '30px',
+              marginTop: '40px'
+            }}
+          >
+            <button onClick={handleDownload}>Download data JSON</button>
+          </div>
+
+          <JSONPretty json={data} />
+        </div>
+      )}
     </div>
   );
 }
